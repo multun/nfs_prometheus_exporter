@@ -37,12 +37,6 @@ def handler(metrics_handler, params):
     if targets is None or len(targets) < 1:
         raise RuntimeError(f'invalid or missing target: {targets}')
 
-    target_map = defaultdict(set)
-
-    for target in targets:
-        host, path = target.split(':')
-        target_map[host].add(path)
-
     registry = CollectorRegistry()
 
     timer = Gauge('probe_nfs_duration', 'Duration of NFS probing',
@@ -50,18 +44,12 @@ def handler(metrics_handler, params):
 
     success = True
     with timer.time():
-        for host, required_shares in target_map.items():
-            result = subprocess.run(["showmount", "--no-header", "-e",
-                                     "--", host],
-                                    stdout=subprocess.PIPE)
+        for target in targets:
+            host, path = target.split(':')
+            target = f'nfs://{host}{path}?version=4'
+            result = subprocess.run(["nfs-ls", target], stdout=subprocess.PIPE)
 
             if result.returncode != 0:
-                success = False
-                break
-
-            shares = result.stdout.decode().splitlines()
-            folders = set(share.split(' ')[0] for share in shares)
-            if not folders.issuperset(required_shares):
                 success = False
                 break
 
