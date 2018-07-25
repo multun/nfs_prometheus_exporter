@@ -53,7 +53,7 @@ def handler(metrics_handler, params):
         for host, required_shares in target_map.items():
             result = subprocess.run(["showmount", "--no-header", "-e",
                                      "--", host],
-                                    check=True, stdout=subprocess.PIPE)
+                                    stdout=subprocess.PIPE)
 
             if result.returncode != 0:
                 success = False
