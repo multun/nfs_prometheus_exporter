@@ -39,7 +39,7 @@ def handler(metrics_handler, params):
 
     registry = CollectorRegistry()
 
-    timer = Gauge('probe_nfs_duration', 'Duration of NFS probing',
+    timer = Gauge('probe_duration_seconds', 'Duration of NFS probing',
                   registry=registry)
 
     success = True
